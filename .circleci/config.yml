@@ -1,5 +1,3 @@
-orbs:
-  queue: eddiewebb/queue@volatile
 jobs:
   build:
     docker:
@@ -25,10 +23,10 @@ jobs:
     steps:
       - checkout
       - run:
-  shell: /bin/sh
           command: |
             echo "This is an integration step"
             exit 1
+          when: on_fail      # Even if the job fails, continue to the next jobs
 
   prod:
     docker:
@@ -37,14 +35,12 @@ jobs:
       - checkout
       - run: echo "This is a deploy step"
 
-   artifacts:
+  artifact:
     docker:
-      - image: python:3.6   
+      - image: python:3.6
     steps:
-      - run:
-          name: Creating Artifacts
-          command: |
-          echo "hello" > hello.txt        
+      - checkout
+      - run: echo "hello" > hello.txt
       - store_artifacts:
           path: hello.txt
           destination: artifact-file
@@ -53,7 +49,37 @@ workflows:
   version: 2
   django:
     jobs:
-      - build
-      - test
-      - integration
-      - prod
+      - build:
+          filters:          # Run the job with a specific branch
+            branches:
+              only:
+                - main
+      - test:
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - main
+      - integration:
+          requires:
+            - test
+          filters:
+            branches:
+              only:
+                - main
+      - prod:
+          requires:
+            - integration
+          filters:
+            branches:
+              only:
+                - main
+      - artifact:
+          requires:
+            - prod
+          filters:
+            branches:
+              only:
+                - main
+
