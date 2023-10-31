@@ -1,64 +1,59 @@
 orbs:
-    queue: eddiewebb/queue@volatile
+  queue: eddiewebb/queue@volatile
 jobs:
-    - publish:   
-        filters:
-        branches:
-            only: master
-    build:
+  build:
     docker:
-        - image: python:3.6                   # similar to "image" in GitLab
+      - image: python:3.6                   # similar to "image" in GitLab
     steps:
-        - checkout
-        - run: |                              # similar to "script" in GitLab
-            pip install -r requirements.txt
-            python manage.py check
+      - checkout
+      - run: |                              # similar to "script" in GitLab
+          pip install -r requirements.txt
+          python manage.py check
 
-    test:
+  test:
     docker:
-        - image: python:3.6
+      - image: python:3.6
     steps:
-        - checkout
-        - run: |
-            pip install -r requirements.txt
-            python manage.py test taskManager
+      - checkout
+      - run: |
+          pip install -r requirements.txt
+          python manage.py test taskManager
 
-    integration:
+  integration:
     docker:
-        - image: python:3.6
+      - image: python:3.6
     steps:
-        - checkout
-        - run:
-            shell: /bin/sh
-            command: |
+      - checkout
+      - run:
+  shell: /bin/sh
+          command: |
             echo "This is an integration step"
             exit 1
 
-    prod:
+  prod:
     docker:
-        - image: python:3.6
+      - image: python:3.6
     steps:
-        - checkout
-        - run: echo "This is a deploy step"
+      - checkout
+      - run: echo "This is a deploy step"
 
-
-    artifacts:
+   artifacts:
     docker:
-        - image: python:3.6   
+      - image: python:3.6   
     steps:
-        - run:
-            name: Creating Artifacts
-            command: |
-            echo "hello" > hello.txt        
-        - store_artifacts:
-            path: hello.txt
-            destination: artifact-file
+      - run:
+          name: Creating Artifacts
+          command: |
+          echo "hello" > hello.txt        
+      - store_artifacts:
+          path: hello.txt
+          destination: artifact-file
 
-    workflows:
-    version: 2
-    django:
+workflows:
+  version: 2
+  django:
     jobs:
-        - build
-        - test
-        - integration
-        - prod
+      - build
+      - test
+      - integration
+      - prod
