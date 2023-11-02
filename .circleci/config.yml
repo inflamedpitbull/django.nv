@@ -1,3 +1,4 @@
+cat >.circleci/config.yml<<EOF
 jobs:
   build:
     docker:
@@ -22,9 +23,9 @@ jobs:
     steps:
       - checkout
       - run: |
-          echo  | docker login -u  --password-stdin
-          docker build -t /django.nv .   # Build the application into Docker image
-          docker push /django.nv         # Push the image into registry
+          echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+          docker build -t $DOCKER_USERNAME/django.nv .   # Build the application into Docker image
+          docker push $DOCKER_USERNAME/django.nv         # Push the image into registry
 
   integration:
     docker:
@@ -59,3 +60,4 @@ workflows:
           type: approval
           requires:
             - integration
+EOF
